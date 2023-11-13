@@ -1,7 +1,6 @@
 package net.barrage.school.java.ecatalog.app;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -30,6 +29,15 @@ public class ProductServiceImpl implements ProductService {
     public List<Product> listProducts() {
         return objectMapper.readValue(productsSourceFile, SourceProductList.class).stream()
                 .map(sourceProduct -> convert(sourceProduct))
+                .toList();
+    }
+
+    @SneakyThrows
+    @Override
+    public List<Product> searchProducts(String query) {
+        return listProducts()
+                .stream()
+                .filter(product -> product.getName().toLowerCase().contains(query.toLowerCase()) || (product.getDescription() != null && product.getDescription().toLowerCase().contains(query.toLowerCase())))
                 .toList();
     }
 
