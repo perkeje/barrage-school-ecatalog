@@ -9,6 +9,7 @@ import java.util.UUID;
 @ToString
 public class Product {
     private UUID id;
+    private String owner;
     private String name;
     private String description;
     private String image;
