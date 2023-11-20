@@ -2,6 +2,61 @@
 
 Educational Project, Barrage's Java School
 
+## Task 4
+
+Business of your uncle and his friends goes really well. With new ads through your catalog they begin to have way more
+orders. They got more money and now want to extend the functionality. First of all, they want to have an admin part, so
+it will be possible to manage their products from it (CRUD).
+
+So, now you need to introduce some database and provide CRUD interface for it!
+
+Unfortunately not all of his friends are ready to migrate to this new CRUD. Guy with XML want to continue with current
+schema.
+
+### What to do?
+
+* Run postgres locally using [dcoker-compose](docker-compose.yaml)
+* Consider [the example](src/test/java/net/barrage/school/java/ecatalog/app/HibernateExampleTest.java) of how to copy
+  products to db.
+* You will need new CRUD Rest API, e.g. `CrudProductController`
+    * And new mappings, e.g. `@PostMapping`, `@PutMapping` &
+      etc ([brief example](https://www.javadevjournal.com/spring-boot/spring-boot-rest-example/))
+    * What REST API calls will look like? Is following enough?
+        * GET `/e-catalog/api/v1/merchants` - List merchants
+        * GET `/e-catalog/api/v1/merchants/{merchantId}` - Get merchant by id
+        * GET `/e-catalog/api/v1/merchants/{merchantId}/products` - List products from selected merchant
+        * GET `/e-catalog/api/v1/products` - List all products
+        * POST `/e-catalog/api/v1/products` - Create product
+        * GET `/e-catalog/api/v1/products/{productId}` - Get product by id
+        * PUT `/e-catalog/api/v1/products/{productId}` - Update product by id
+        * DELETE `/e-catalog/api/v1/products/{productId}` - Delete product by id
+* Think on how to migrate existed products to db
+* Think on how to keep products R/O for merchants who aren't ready to migrate to crud. And think on how to keep them
+  syncing with db.
+* Implement new changes. And don't forget to cover them with tests.
+
+## Task 3
+
+Uncle and his friends are happy for now... It's time to think about tech dept :)
+
+You are from CS department and realize that reading products from dropbox on every request is not what we would call
+performance. Even reading it from local file is too expensive.
+
+You want to cache all the products in memory and invalidate them from time to time.
+
+And you decide to start covering your code with tests.
+
+### What to do?
+
+* Think on config change. What extra configs will be needed?
+* How do you plan to schedule cache invalidation?
+    * Consider [@Scheduled](https://www.baeldung.com/spring-scheduled-tasks) for invalidation job
+* Try to write more tests
+  in [ProductServiceImplTest](src/test/java/net/barrage/school/java/ecatalog/app/ProductServiceImplTest.java)
+    * We gonna use [JUnit5](https://junit.org/junit5/docs/current/user-guide/) in our project
+    * Write tests to cover search and your changes about product sources
+    * Write more test classes if you need different [profile](src/test/resources/application-fake.yaml)
+
 ## Task 2
 
 Uncle is really proud of his site! He has shown it to all his neighbours and friends. Bob and John are also farmers from
@@ -32,6 +87,8 @@ So now u will have 3 sources:
         * Suggest something new. Keep in mind that the list of sources and formats can grow.
     * Read about [@ConfigurationProperties](https://www.baeldung.com/configuration-properties-in-spring-boot). It may
       help u!
+    * Read about [@Configuration](https://www.digitalocean.com/community/tutorials/spring-configuration-annotation). You
+      will need it to create a bean factory for your new product sources!
 * Without writing anything discuss your ideas with your team and mentor.
     * Find uncovered questions
     * Google them
