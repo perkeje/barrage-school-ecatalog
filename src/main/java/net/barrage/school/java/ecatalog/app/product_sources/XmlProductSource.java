@@ -1,6 +1,7 @@
-package net.barrage.school.java.ecatalog.app;
+package net.barrage.school.java.ecatalog.app.product_sources;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.barrage.school.java.ecatalog.config.ProductSourceProperties;
@@ -12,20 +13,20 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 @RequiredArgsConstructor
-public class JsonProductSource implements ProductSource {
-    private static final Logger log = LoggerFactory.getLogger(JsonProductSource.class);
-    private final ObjectMapper objectMapper;
+public class XmlProductSource implements ProductSource {
+    private static final Logger log = LoggerFactory.getLogger(XmlProductSource.class);
+    private final XmlMapper xmlMapper;
     private final ProductSourceProperties.SourceProperty property;
 
     @Override
     public List<Product> getProducts() {
         try {
-            return objectMapper.readValue(URI.create(property.getUrl()).toURL().openStream(), SourceProductList.class).stream()
+            return xmlMapper.readValue(URI.create(property.getUrl()).toURL().openStream(), SourceProductList.class)
+                    .stream()
                     .map(this::convert)
                     .toList();
         } catch (Exception e) {
@@ -34,32 +35,35 @@ public class JsonProductSource implements ProductSource {
         }
     }
 
+    @Override
+    public String getMerchantName() {
+        return property.getName();
+    }
+
+    @Override
+    public boolean isRemote() {
+        return property.isRemote();
+    }
+
     private Product convert(SourceProduct sourceProduct) {
         var product = new Product();
         product.setId(UUID.randomUUID());
-        product.setName(sourceProduct.getName());
-        product.setOwner(property.getName());
-        product.setDescription(sourceProduct.getNotes());
-        product.setImage(Optional.ofNullable(sourceProduct.productMedia)
-                .flatMap(media -> media.stream().findFirst())
-                .orElse(null));
+        product.setName(sourceProduct.getTitle());
+        product.setDescription(sourceProduct.getDescription());
         product.setPrice(sourceProduct.getPrice());
         return product;
     }
 
-    @RequiredArgsConstructor
     @Component
     public static class Factory implements ProductSource.Factory {
-        private final ObjectMapper objectMapper;
-
         @Override
         public Set<String> getSupportedFormats() {
-            return Set.of("json");
+            return Set.of("xml");
         }
 
         @Override
         public ProductSource create(ProductSourceProperties.SourceProperty property) {
-            return new JsonProductSource(objectMapper, property);
+            return new XmlProductSource(new XmlMapper(), property);
         }
     }
 
@@ -67,10 +71,10 @@ public class JsonProductSource implements ProductSource {
     }
 
     @Data
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class SourceProduct {
-        private String name;
-        private String notes;
-        private List<String> productMedia;
+        private String title;
+        private String description;
         private double price;
     }
 }
