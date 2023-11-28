@@ -1,4 +1,4 @@
-package net.barrage.school.java.ecatalog.app;
+package net.barrage.school.java.ecatalog.app.product_sources;
 
 import lombok.RequiredArgsConstructor;
 import net.barrage.school.java.ecatalog.config.ProductSourceProperties;
@@ -55,14 +55,13 @@ public class ExcelProductSource implements ProductSource {
                             product.setName(cell.getStringCellValue());
                             break;
                         case PHOTO_INDEX:
-                            product.setImage(cell.getStringCellValue());
+                            product.setImageUrl(cell.getStringCellValue());
                             break;
                         case PRICE_INDEX:
                             product.setPrice(Double.parseDouble(cell.getStringCellValue()));
                             break;
                     }
                 }
-                product.setOwner(properties.getName());
                 result.add(product);
             }
         } catch (Exception e) {
@@ -71,6 +70,16 @@ public class ExcelProductSource implements ProductSource {
         }
 
         return result;
+    }
+
+    @Override
+    public String getMerchantName() {
+        return properties.getName();
+    }
+
+    @Override
+    public boolean isRemote() {
+        return properties.isRemote();
     }
 
     @RequiredArgsConstructor
