@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import net.barrage.school.java.ecatalog.app.services.ProductService;
 import net.barrage.school.java.ecatalog.model.Product;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,9 +32,12 @@ public class ProductController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public List<Product> listProducts() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("user = {}", authentication);
         var products = productService.listProducts();
-        log.trace("listProducts -> {}", products);
+//        log.debug("listProducts -> {}", products);
         return products;
     }
 
