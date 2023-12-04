@@ -45,6 +45,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findByNameIgnoreCaseContainingOrDescriptionIgnoreCaseContaining(query, query);
     }
 
+    @Override
     public List<Product> listProductsByMerchant(Merchant merchant) {
         return productRepository.findByMerchant(merchant);
     }
