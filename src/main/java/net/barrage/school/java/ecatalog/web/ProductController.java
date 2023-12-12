@@ -1,6 +1,11 @@
 package net.barrage.school.java.ecatalog.web;
 
 import jakarta.validation.Valid;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.barrage.school.java.ecatalog.app.services.ProductService;
 import net.barrage.school.java.ecatalog.model.Product;
@@ -19,22 +24,24 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/e-catalog/api/v1/products")
 public class ProductController {
 
     private final ProductService productService;
+    private final MeterRegistry meterRegistry;
 
-    public ProductController(
-            ProductService productService) {
-        this.productService = productService;
-    }
+    @Getter(value = AccessLevel.PRIVATE, lazy = true)
+    private final Counter listProductsCounter = meterRegistry
+            .counter("ecatalog.products.listProducts");
 
     @GetMapping
     @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public List<Product> listProducts() {
         var products = productService.listProducts();
         log.trace("listProducts -> {}", products);
+        getListProductsCounter().increment();
         return products;
     }
 

@@ -1,7 +1,6 @@
 package net.barrage.school.java.ecatalog.config;
 
 import com.nimbusds.jwt.JWTParser;
-import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -17,12 +17,19 @@ spring:
     username: postgres
     password: example
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+
 logging:
   level:
     net.barrage.school.java.ecatalog: DEBUG
 
 ecatalog:
   products:
+    fetchDelay: 300000 # 5 minutes
     sources:
       - name: Uncle
         format: json
