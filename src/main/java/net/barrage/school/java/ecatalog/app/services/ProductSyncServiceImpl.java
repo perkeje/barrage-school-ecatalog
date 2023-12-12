@@ -24,9 +24,9 @@ public class ProductSyncServiceImpl implements ProductSyncService{
         this.productSources = productSources;
     }
 
-    @Scheduled(cron = "0 * * * * *")
-        //Every hour
-    void syncDatabase() {
+    @Scheduled(cron = "0 * * * * *") //Every hour
+    @Transactional
+    public void syncDatabase() {
         for (ProductSource source : productSources) {
             if(source.isRemote()) {
                 syncWithProductSource(source);

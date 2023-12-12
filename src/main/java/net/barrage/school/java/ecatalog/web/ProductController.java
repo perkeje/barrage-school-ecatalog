@@ -4,9 +4,8 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import net.barrage.school.java.ecatalog.app.services.ProductService;
 import net.barrage.school.java.ecatalog.model.Product;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,14 +33,13 @@ public class ProductController {
     @GetMapping
     @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public List<Product> listProducts() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        log.info("user = {}", authentication);
         var products = productService.listProducts();
-//        log.debug("listProducts -> {}", products);
+        log.trace("listProducts -> {}", products);
         return products;
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public Product createProduct(@Valid @RequestBody Product product) {
         var createdProduct = productService.saveProduct(product);
         log.trace("createProduct -> {}", createdProduct);
@@ -49,6 +47,7 @@ public class ProductController {
     }
 
     @PutMapping("/{product_id}")
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public Product updateProduct(@PathVariable("product_id") UUID productId, @Valid @RequestBody Product product) {
         product = product.setId(productId);
         var updatedProduct = productService.saveProduct(product);
@@ -57,6 +56,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{product_id}")
+    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public void deleteProduct(@PathVariable("product_id") UUID productId) {
         productService.deleteProduct(productId);
         log.trace("deleteProduct -> {}", productId);
