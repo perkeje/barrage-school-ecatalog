@@ -1,5 +1,7 @@
 package net.barrage.school.java.ecatalog.app.services;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import net.barrage.school.java.ecatalog.model.Merchant;
 import net.barrage.school.java.ecatalog.model.Product;
 import net.barrage.school.java.ecatalog.repository.ProductRepository;
@@ -14,10 +16,21 @@ import java.util.UUID;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-
     @Autowired
     private ProductRepository productRepository;
 
+    private final MeterRegistry meterRegistry;
+
+    // Constructor to inject MeterRegistry
+    @Autowired
+    public ProductServiceImpl(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+
+        // Register a Gauge for the number of products
+        Gauge.builder("ecatalog.products.count", this, ProductService::countProducts)
+                .description("Number of products in the application")
+                .register(meterRegistry);
+    }
 
     @Override
     public List<Product> listProducts() {
@@ -48,6 +61,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> listProductsByMerchant(Merchant merchant) {
         return productRepository.findByMerchant(merchant);
+    }
+
+    @Override
+    public long countProducts() {
+        return productRepository.count();
     }
 
 }

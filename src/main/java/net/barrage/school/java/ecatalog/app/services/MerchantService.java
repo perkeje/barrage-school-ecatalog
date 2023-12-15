@@ -7,4 +7,6 @@ import java.util.List;
 public interface MerchantService {
     List<Merchant> listMerchants();
     Merchant getMerchantById(Long merchantId);
+
+    long countMerchants();
 }

@@ -10,4 +10,4 @@ scrape_configs:
     static_configs:
       # Here we are trying to scrap metrics from service run in host os from inside docker container.
       # For linux we can use 172.17.0.1 as default host os ip. For other platforms ip can be different.
-      - targets: [ '172.17.0.1:8080' ]
+      - targets: [ 'host.docker.internal:8080' ]
