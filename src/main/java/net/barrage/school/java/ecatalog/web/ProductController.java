@@ -1,8 +1,9 @@
 package net.barrage.school.java.ecatalog.web;
 
-import jakarta.validation.Valid;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,13 +37,21 @@ public class ProductController {
     private final Counter listProductsCounter = meterRegistry
             .counter("ecatalog.products.listProducts");
 
+    @Getter(value = AccessLevel.PRIVATE, lazy = true)
+    private final Timer listProductsTimer = meterRegistry
+            .timer("ecatalog.products.listProductsTimer");
+
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_SYSTEM_ADMIN')")
     public List<Product> listProducts() {
-        var products = productService.listProducts();
-        log.trace("listProducts -> {}", products);
-        getListProductsCounter().increment();
-        return products;
+        Timer.Sample sample = Timer.start(meterRegistry);
+        try {
+            var products = productService.listProducts();
+            log.trace("listProducts -> {}", products);
+            getListProductsCounter().increment();
+            return products;
+        } finally {
+            sample.stop(getListProductsTimer());
+        }
     }
 
     @PostMapping

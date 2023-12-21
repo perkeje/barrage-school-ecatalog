@@ -1,5 +1,10 @@
 package net.barrage.school.java.ecatalog.web;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.barrage.school.java.ecatalog.app.services.MerchantService;
 import net.barrage.school.java.ecatalog.app.services.ProductService;
@@ -14,20 +19,25 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/e-catalog/api/v1/merchants")
 public class MerchantController {
     private final MerchantService merchantService;
     private final ProductService productService;
+    private final MeterRegistry meterRegistry;
 
-    public MerchantController(
-            MerchantService merchantService, ProductService productService) {
-        this.merchantService = merchantService;
-        this.productService = productService;
-    }
+    @Getter(value = AccessLevel.PRIVATE, lazy = true)
+    private final Counter listMerchantsCounter = meterRegistry
+            .counter("ecatalog.products.listMerchants");
+
+    @Getter(value = AccessLevel.PRIVATE, lazy = true)
+    private final Counter listMerchantProductsCounter = meterRegistry
+            .counter("ecatalog.products.listMerchantProductsCounter");
 
     @GetMapping
     public List<Merchant> listMerchants() {
         var merchants = merchantService.listMerchants();
+        getListMerchantsCounter().increment();
         log.trace("listMerchants -> {}", merchants);
         return merchants;
     }
@@ -42,6 +52,7 @@ public class MerchantController {
     @GetMapping("/{merchant_id}/products")
     public List<Product> listProductsByMerchantId(@PathVariable("merchant_id") Long merchantId) {
         var products = productService.listProductsByMerchant(merchantService.getMerchantById(merchantId));
+        getListMerchantProductsCounter().increment();
         log.trace("listProductsByMerchantId -> {}", products);
         return products;
     }

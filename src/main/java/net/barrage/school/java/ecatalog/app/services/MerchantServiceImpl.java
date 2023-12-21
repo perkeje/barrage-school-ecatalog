@@ -1,5 +1,7 @@
 package net.barrage.school.java.ecatalog.app.services;
 
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.MeterRegistry;
 import net.barrage.school.java.ecatalog.model.Merchant;
 import net.barrage.school.java.ecatalog.repository.MerchantRepository;
 import org.apache.commons.compress.utils.Lists;
@@ -17,6 +19,16 @@ import java.util.List;
 public class MerchantServiceImpl implements MerchantService{
     @Autowired
     private MerchantRepository merchantRepository;
+    private final MeterRegistry meterRegistry;
+
+    @Autowired
+    public MerchantServiceImpl(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+
+        Gauge.builder("ecatalog.merchants.count", this, MerchantService::countMerchants)
+                .description("Number of products in the application")
+                .register(meterRegistry);
+    }
 
     @Override
     @Cacheable("merchants")
@@ -33,5 +45,10 @@ public class MerchantServiceImpl implements MerchantService{
     @Scheduled(fixedDelayString = "${ecatalog.products.fetchDelay}")
     @CacheEvict(value = "merchants", allEntries = true)
     public void clearMerchantCache() {
+    }
+
+    @Override
+    public long countMerchants() {
+        return merchantRepository.count();
     }
 }

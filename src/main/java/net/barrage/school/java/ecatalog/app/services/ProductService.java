@@ -16,6 +16,7 @@ public interface ProductService {
     void deleteProduct(UUID id);
     Product getProduct(UUID id);
     List<Product> searchProducts(String query);
-
     List<Product> listProductsByMerchant(Merchant merchant);
+
+    long countProducts();
 }

@@ -12,6 +12,16 @@ spring:
     username: postgres
     password: example
 
+loader:
+  endpoint: /e-catalog/api/v1/products
+  requestsPerMinute: 50
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+
 ecatalog:
   products:
     fetchDelay: 300000 # 5 minutes
